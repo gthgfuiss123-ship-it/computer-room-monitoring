@@ -15,6 +15,7 @@ class ControlFragment : Fragment() {
     private var _binding: FragmentControlBinding? = null
     private val binding get() = _binding!!
     private val viewModel: ControlViewModel by viewModels()
+    private var isUpdatingFromServer = false
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -32,9 +33,11 @@ class ControlFragment : Fragment() {
 
     private fun setupObservers() {
         viewModel.deviceStatus.observe(viewLifecycleOwner) { status ->
+            isUpdatingFromServer = true
             binding.switchFan.isChecked = status.fan
             binding.switchLight.isChecked = status.light
             binding.switchBuzzer.isChecked = status.buzzer
+            isUpdatingFromServer = false
 
             binding.tvFanStatus.text = if (status.fan) "Đang BẬT" else "Đang TẮT"
             binding.tvLightStatus.text = if (status.light) "Đang BẬT" else "Đang TẮT"
@@ -50,15 +53,15 @@ class ControlFragment : Fragment() {
 
     private fun setupListeners() {
         binding.switchFan.setOnCheckedChangeListener { _, isChecked ->
-            viewModel.toggleFan(isChecked)
+            if (!isUpdatingFromServer) viewModel.toggleFan(isChecked)
         }
 
         binding.switchLight.setOnCheckedChangeListener { _, isChecked ->
-            viewModel.toggleLight(isChecked)
+            if (!isUpdatingFromServer) viewModel.toggleLight(isChecked)
         }
 
         binding.switchBuzzer.setOnCheckedChangeListener { _, isChecked ->
-            viewModel.toggleBuzzer(isChecked)
+            if (!isUpdatingFromServer) viewModel.toggleBuzzer(isChecked)
         }
     }
 

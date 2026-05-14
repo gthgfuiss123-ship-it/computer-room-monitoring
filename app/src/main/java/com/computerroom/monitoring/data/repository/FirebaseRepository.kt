@@ -8,6 +8,7 @@ import com.computerroom.monitoring.data.model.SensorData
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.Query
 import com.google.firebase.database.ValueEventListener
 
 class FirebaseRepository {
@@ -29,8 +30,15 @@ class FirebaseRepository {
     private val _error = MutableLiveData<String>()
     val error: LiveData<String> = _error
 
+    private var sensorListener: ValueEventListener? = null
+    private var deviceListener: ValueEventListener? = null
+    private var historyListener: ValueEventListener? = null
+    private var historyQuery: Query? = null
+
     fun startListeningSensorData() {
-        sensorRef.addValueEventListener(object : ValueEventListener {
+        if (sensorListener != null) return
+
+        sensorListener = object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 val data = snapshot.getValue(SensorData::class.java)
                 if (data != null) {
@@ -41,11 +49,14 @@ class FirebaseRepository {
             override fun onCancelled(error: DatabaseError) {
                 _error.postValue("Sensor error: ${error.message}")
             }
-        })
+        }
+        sensorRef.addValueEventListener(sensorListener!!)
     }
 
     fun startListeningDeviceStatus() {
-        deviceRef.addValueEventListener(object : ValueEventListener {
+        if (deviceListener != null) return
+
+        deviceListener = object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 val status = snapshot.getValue(DeviceStatus::class.java)
                 if (status != null) {
@@ -56,28 +67,36 @@ class FirebaseRepository {
             override fun onCancelled(error: DatabaseError) {
                 _error.postValue("Device error: ${error.message}")
             }
-        })
+        }
+        deviceRef.addValueEventListener(deviceListener!!)
     }
 
     fun loadHistory() {
-        historyRef.orderByChild("timestamp").limitToLast(50)
-            .addValueEventListener(object : ValueEventListener {
-                override fun onDataChange(snapshot: DataSnapshot) {
-                    val records = mutableListOf<HistoryRecord>()
-                    for (child in snapshot.children) {
-                        val record = child.getValue(HistoryRecord::class.java)
-                        if (record != null) {
-                            records.add(record)
-                        }
-                    }
-                    records.sortByDescending { it.timestamp }
-                    _historyList.postValue(records)
-                }
+        historyListener?.let { listener ->
+            historyQuery?.removeEventListener(listener)
+        }
 
-                override fun onCancelled(error: DatabaseError) {
-                    _error.postValue("History error: ${error.message}")
+        val query = historyRef.orderByChild("timestamp").limitToLast(50)
+        historyQuery = query
+
+        historyListener = object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                val records = mutableListOf<HistoryRecord>()
+                for (child in snapshot.children) {
+                    val record = child.getValue(HistoryRecord::class.java)
+                    if (record != null) {
+                        records.add(record)
+                    }
                 }
-            })
+                records.sortByDescending { it.timestamp }
+                _historyList.postValue(records)
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                _error.postValue("History error: ${error.message}")
+            }
+        }
+        query.addValueEventListener(historyListener!!)
     }
 
     fun setDeviceFan(on: Boolean) {

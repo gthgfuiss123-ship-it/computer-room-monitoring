@@ -58,7 +58,7 @@ class HomeFragment : Fragment() {
 
             if (data.timestamp > 0) {
                 val sdf = SimpleDateFormat("HH:mm:ss dd/MM/yyyy", Locale.getDefault())
-                binding.tvLastUpdate.text = "Cập nhật: ${sdf.format(Date(data.timestamp))}"
+                binding.tvLastUpdate.text = "Cập nhật: ${sdf.format(Date(data.timestamp * 1000L))}"
             }
         }
 

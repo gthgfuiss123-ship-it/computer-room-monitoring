@@ -105,7 +105,7 @@ class SensorFragment : Fragment() {
             // Last update
             if (data.timestamp > 0) {
                 val sdf = SimpleDateFormat("HH:mm:ss dd/MM/yyyy", Locale.getDefault())
-                binding.tvLastUpdate.text = "Cập nhật lần cuối: ${sdf.format(Date(data.timestamp))}"
+                binding.tvLastUpdate.text = "Cập nhật lần cuối: ${sdf.format(Date(data.timestamp * 1000L))}"
             }
         }
     }

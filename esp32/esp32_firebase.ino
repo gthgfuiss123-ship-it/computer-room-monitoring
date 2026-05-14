@@ -28,6 +28,12 @@
 #include <Wire.h>
 #include <LiquidCrystal_I2C.h>
 #include <DHT.h>
+#include <time.h>
+
+// ==================== NTP ====================
+#define NTP_SERVER "pool.ntp.org"
+#define GMT_OFFSET  25200  // UTC+7 (Vietnam) in seconds
+#define DST_OFFSET  0
 
 // ==================== CẤU HÌNH WIFI ====================
 #define WIFI_SSID     "YOUR_WIFI_SSID"       // <-- Thay bằng tên WiFi của bạn
@@ -128,6 +134,16 @@ void setup() {
   Firebase.begin(&firebaseConfig, &firebaseAuth);
   Firebase.reconnectWiFi(true);
 
+  // ===== Cấu hình NTP để lấy thời gian thực =====
+  configTime(GMT_OFFSET, DST_OFFSET, NTP_SERVER);
+  Serial.println("Dang dong bo thoi gian NTP...");
+  struct tm timeinfo;
+  while (!getLocalTime(&timeinfo)) {
+    delay(500);
+    Serial.print(".");
+  }
+  Serial.println("\nDa dong bo thoi gian NTP!");
+
   lcd.clear();
   lcd.setCursor(0, 0);
   lcd.print("WiFi: OK");
@@ -192,7 +208,9 @@ void loop() {
     Firebase.setFloat(firebaseData, "/sensor/temperature", temperature);
     Firebase.setFloat(firebaseData, "/sensor/humidity", humidity);
     Firebase.setBool(firebaseData, "/sensor/motion", motion == HIGH);
-    Firebase.setInt(firebaseData, "/sensor/timestamp", (int)(millis() / 1000));
+    time_t now;
+    time(&now);
+    Firebase.setInt(firebaseData, "/sensor/timestamp", (int)now);
 
     Serial.print("Sent -> T: ");
     Serial.print(temperature);
@@ -210,7 +228,9 @@ void loop() {
     Firebase.setFloat(firebaseData, historyPath + "/temperature", temperature);
     Firebase.setFloat(firebaseData, historyPath + "/humidity", humidity);
     Firebase.setBool(firebaseData, historyPath + "/motion", motion == HIGH);
-    Firebase.setInt(firebaseData, historyPath + "/timestamp", (int)(millis() / 1000));
+    time_t nowHist;
+    time(&nowHist);
+    Firebase.setInt(firebaseData, historyPath + "/timestamp", (int)nowHist);
 
     Serial.println("Da luu lich su");
   }

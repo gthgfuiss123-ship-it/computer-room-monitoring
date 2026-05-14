@@ -48,7 +48,7 @@ class HistoryAdapter : ListAdapter<HistoryRecord, HistoryAdapter.ViewHolder>(Dif
 
             if (record.timestamp > 0) {
                 val sdf = SimpleDateFormat("HH:mm:ss\ndd/MM/yyyy", Locale.getDefault())
-                binding.tvHistoryTime.text = sdf.format(Date(record.timestamp))
+                binding.tvHistoryTime.text = sdf.format(Date(record.timestamp * 1000L))
             }
         }
     }
