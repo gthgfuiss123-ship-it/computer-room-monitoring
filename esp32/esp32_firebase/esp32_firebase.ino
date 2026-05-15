@@ -36,21 +36,21 @@
 #define DST_OFFSET  0
 
 // ==================== CẤU HÌNH WIFI ====================
-#define WIFI_SSID     "YOUR_WIFI_SSID"       // <-- Thay bằng tên WiFi của bạn
-#define WIFI_PASSWORD "YOUR_WIFI_PASSWORD"    // <-- Thay bằng mật khẩu WiFi
+#define WIFI_SSID     "Khang Nhi House2.4G"       // <-- Thay bằng tên WiFi của bạn
+#define WIFI_PASSWORD "0905396961"    // <-- Thay bằng mật khẩu WiFi
 
 // ==================== CẤU HÌNH FIREBASE ====================
-#define FIREBASE_HOST "YOUR_PROJECT.firebaseio.com"  // <-- Thay bằng URL Firebase
-#define FIREBASE_AUTH "YOUR_FIREBASE_DATABASE_SECRET" // <-- Thay bằng Database Secret
+#define FIREBASE_HOST "gen-lang-client-0691122932-default-rtdb.firebaseio.com"  // <-- Thay bằng URL Firebase
+#define FIREBASE_AUTH "FqTKRoCl1hTLJ3l5opgjZlI0vgWSVLsdVwDxHQ8U" // <-- Thay bằng Database Secret
 
 // ==================== LCD I2C ====================
 #define SDA_PIN 21
 #define SCL_PIN 22
 LiquidCrystal_I2C lcd(0x27, 16, 2);
 
-// ==================== DHT22 ====================
+// ==================== DHT11 ====================
 #define DHTPIN  4
-#define DHTTYPE DHT22
+#define DHTTYPE DHT11
 DHT dht(DHTPIN, DHTTYPE);
 
 // ==================== PIR ====================
@@ -90,7 +90,7 @@ void setup() {
   dht.begin();
 
   // ===== PIR =====
-  pinMode(PIR_PIN, INPUT);
+  pinMode(PIR_PIN, INPUT_PULLDOWN);
 
   // ===== LED =====
   pinMode(LED_GREEN, OUTPUT);
@@ -248,11 +248,13 @@ void loop() {
     digitalWrite(RELAY_LIGHT, lightOn ? HIGH : LOW);
   }
 
-  // Buzzer
+  // Buzzer (Hú còi từ xa HOẶC tự động khi nhiệt > 40 hoặc có chuyển động)
+  bool manualBuzzer = false;
   if (Firebase.getBool(firebaseData, "/devices/buzzer")) {
-    bool buzzerOn = firebaseData.boolData();
-    digitalWrite(BUZZER_PIN, buzzerOn ? HIGH : LOW);
+    manualBuzzer = firebaseData.boolData();
   }
+  bool autoAlarm = (motion == HIGH) || (temperature >= 40.0);
+  digitalWrite(BUZZER_PIN, (manualBuzzer || autoAlarm) ? HIGH : LOW);
 
   delay(500);
 }
