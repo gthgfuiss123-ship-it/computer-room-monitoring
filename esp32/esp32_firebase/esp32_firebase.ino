@@ -181,7 +181,7 @@ void loop() {
 
     time_t nowHist;
     time(&nowHist);
-    String historyPath = "/history/" + String((int)nowHist);
+    String historyPath = "/history/" + String((unsigned long)nowHist);
     Firebase.setFloat(firebaseData, historyPath + "/temperature", temperature);
     Firebase.setFloat(firebaseData, historyPath + "/humidity", humidity);
     Firebase.setInt(firebaseData, historyPath + "/timestamp", (int)nowHist);
