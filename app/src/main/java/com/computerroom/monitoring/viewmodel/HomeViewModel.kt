@@ -82,7 +82,7 @@ class HomeViewModel : ViewModel() {
 
     private fun addToHistory(data: SensorData) {
         val current = _sensorHistory.value.orEmpty().toMutableList()
-        val entry = if (data.timestamp > 0L) data else SensorData(data.temperature, data.humidity, System.currentTimeMillis())
+        val entry = if (data.timestamp > 0L) data else SensorData(data.temperature, data.humidity, System.currentTimeMillis() / 1000)
         current.add(entry)
         if (current.size > 50) {
             _sensorHistory.value = current.takeLast(50)

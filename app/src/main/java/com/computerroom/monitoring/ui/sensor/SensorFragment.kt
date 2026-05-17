@@ -78,7 +78,7 @@ class SensorFragment : Fragment() {
             override fun getFormattedValue(value: Float): String {
                 val index = value.toInt()
                 if (index >= 0 && index < chartTimestamps.size) {
-                    return sdf.format(Date(chartTimestamps[index]))
+                    return sdf.format(Date(chartTimestamps[index] * 1000L))
                 }
                 return ""
             }
@@ -101,7 +101,7 @@ class SensorFragment : Fragment() {
         if (history.isEmpty()) return
 
         val sorted = history.sortedBy { it.timestamp }
-        chartTimestamps = sorted.map { if (it.timestamp > 0L) it.timestamp else System.currentTimeMillis() }
+        chartTimestamps = sorted.map { if (it.timestamp > 0L) it.timestamp else System.currentTimeMillis() / 1000 }
 
         val entries = sorted.mapIndexed { index, data ->
             val value = if (isTemperature) data.temperature else data.humidity
