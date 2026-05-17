@@ -29,6 +29,7 @@ class SensorFragment : Fragment() {
     private val binding get() = _binding!!
     private val viewModel: HomeViewModel by activityViewModels()
     private var currentThresholds = ThresholdSettings()
+    private var chartTimestamps = listOf<Long>()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -75,7 +76,11 @@ class SensorFragment : Fragment() {
         xAxis.valueFormatter = object : ValueFormatter() {
             private val sdf = SimpleDateFormat("HH:mm", Locale.getDefault())
             override fun getFormattedValue(value: Float): String {
-                return sdf.format(Date(value.toLong()))
+                val index = value.toInt()
+                if (index >= 0 && index < chartTimestamps.size) {
+                    return sdf.format(Date(chartTimestamps[index]))
+                }
+                return ""
             }
         }
 
@@ -95,11 +100,13 @@ class SensorFragment : Fragment() {
     private fun updateChart(chart: LineChart, history: List<SensorData>, lineColor: Int, isTemperature: Boolean) {
         if (history.isEmpty()) return
 
-        val entries = history.map { data ->
-            val ts = if (data.timestamp > 0L) data.timestamp.toFloat() else System.currentTimeMillis().toFloat()
+        val sorted = history.sortedBy { it.timestamp }
+        chartTimestamps = sorted.map { if (it.timestamp > 0L) it.timestamp else System.currentTimeMillis() }
+
+        val entries = sorted.mapIndexed { index, data ->
             val value = if (isTemperature) data.temperature else data.humidity
-            Entry(ts, value)
-        }.sortedBy { it.x }
+            Entry(index.toFloat(), value)
+        }
 
         val dataSet = LineDataSet(entries, "").apply {
             color = lineColor

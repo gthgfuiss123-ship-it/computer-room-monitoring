@@ -66,9 +66,9 @@ class FirebaseRepository {
             calendar.set(java.util.Calendar.MINUTE, 0)
             calendar.set(java.util.Calendar.SECOND, 0)
             calendar.set(java.util.Calendar.MILLISECOND, 0)
-            val startOfDay = calendar.timeInMillis
+            val startOfDay = calendar.timeInMillis / 1000
             calendar.add(java.util.Calendar.DAY_OF_MONTH, 1)
-            val endOfDay = calendar.timeInMillis
+            val endOfDay = calendar.timeInMillis / 1000
             historyRef.orderByChild("timestamp")
                 .startAt(startOfDay.toDouble())
                 .endAt(endOfDay.toDouble() - 1)
