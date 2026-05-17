@@ -2,7 +2,6 @@ package com.computerroom.monitoring.ui.home
 
 import android.app.AlertDialog
 import android.graphics.Color
-import android.media.MediaPlayer
 import android.media.RingtoneManager
 import android.os.Bundle
 import android.os.VibrationEffect
