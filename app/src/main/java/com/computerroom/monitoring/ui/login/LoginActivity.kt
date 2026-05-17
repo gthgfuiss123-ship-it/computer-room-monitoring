@@ -3,12 +3,13 @@ package com.computerroom.monitoring.ui.login
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
-import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import com.computerroom.monitoring.R
 import com.computerroom.monitoring.databinding.ActivityLoginBinding
 import com.computerroom.monitoring.ui.home.MainActivity
 import com.computerroom.monitoring.viewmodel.LoginViewModel
+import com.google.android.material.snackbar.Snackbar
 
 class LoginActivity : AppCompatActivity() {
 
@@ -34,6 +35,9 @@ class LoginActivity : AppCompatActivity() {
 
     private fun setupListeners() {
         binding.btnLogin.setOnClickListener {
+            binding.tilEmail.error = null
+            binding.tilPassword.error = null
+
             val email = binding.etEmail.text.toString().trim()
             val password = binding.etPassword.text.toString().trim()
 
@@ -46,19 +50,21 @@ class LoginActivity : AppCompatActivity() {
 
         binding.tvRegister.setOnClickListener {
             isRegisterMode = !isRegisterMode
+            binding.tilEmail.error = null
+            binding.tilPassword.error = null
             updateMode()
         }
     }
 
     private fun updateMode() {
         if (isRegisterMode) {
-            binding.tvTitle.text = "Đăng ký"
-            binding.btnLogin.text = "Đăng ký"
-            binding.tvRegister.text = "Đăng nhập"
+            binding.tvTitle.text = "Dang ky"
+            binding.btnLogin.text = "Dang ky"
+            binding.tvRegister.text = "Dang nhap"
         } else {
             binding.tvTitle.text = "Smart Farm Monitor"
-            binding.btnLogin.text = "Đăng nhập"
-            binding.tvRegister.text = "Đăng ký"
+            binding.btnLogin.text = "Dang nhap"
+            binding.tvRegister.text = "Dang ky"
         }
     }
 
@@ -70,8 +76,19 @@ class LoginActivity : AppCompatActivity() {
             }
         }
 
+        viewModel.emailError.observe(this) { error ->
+            binding.tilEmail.error = error
+        }
+
+        viewModel.passwordError.observe(this) { error ->
+            binding.tilPassword.error = error
+        }
+
         viewModel.errorMessage.observe(this) { message ->
-            Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
+            Snackbar.make(binding.root, message, Snackbar.LENGTH_LONG)
+                .setBackgroundTint(getColor(R.color.warning_red))
+                .setTextColor(getColor(R.color.white))
+                .show()
         }
 
         viewModel.isLoading.observe(this) { isLoading ->

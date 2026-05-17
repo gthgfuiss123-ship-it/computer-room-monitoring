@@ -6,8 +6,9 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.viewModels
+import androidx.fragment.app.activityViewModels
 import com.computerroom.monitoring.R
+import com.computerroom.monitoring.data.model.ThresholdSettings
 import com.computerroom.monitoring.databinding.FragmentSensorBinding
 import com.computerroom.monitoring.viewmodel.HomeViewModel
 
@@ -15,7 +16,8 @@ class SensorFragment : Fragment() {
 
     private var _binding: FragmentSensorBinding? = null
     private val binding get() = _binding!!
-    private val viewModel: HomeViewModel by viewModels()
+    private val viewModel: HomeViewModel by activityViewModels()
+    private var currentThresholds = ThresholdSettings()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -31,6 +33,10 @@ class SensorFragment : Fragment() {
     }
 
     private fun setupObservers() {
+        viewModel.thresholdSettings.observe(viewLifecycleOwner) { settings ->
+            currentThresholds = settings
+        }
+
         viewModel.sensorData.observe(viewLifecycleOwner) { data ->
             binding.tvTempCurrent.text = String.format("%.1f°", data.temperature)
             binding.tvHumidCurrent.text = String.format("%.0f%%", data.humidity)
@@ -43,25 +49,25 @@ class SensorFragment : Fragment() {
             binding.tvHumidMin.text = String.format("%.0f%%", data.humidity - 10)
             binding.tvHumidMax.text = String.format("%.0f%%", data.humidity + 5)
 
-            if (data.temperature > 40 || data.temperature < 10) {
-                binding.tvTempStatusDetail.text = "Cảnh báo"
+            if (data.temperature > currentThresholds.highTemp || data.temperature < currentThresholds.lowTemp) {
+                binding.tvTempStatusDetail.text = "Canh bao"
                 binding.tvTempStatusDetail.setTextColor(
                     ContextCompat.getColor(requireContext(), R.color.warning_red)
                 )
             } else {
-                binding.tvTempStatusDetail.text = "Bình thường"
+                binding.tvTempStatusDetail.text = "Binh thuong"
                 binding.tvTempStatusDetail.setTextColor(
                     ContextCompat.getColor(requireContext(), R.color.primary)
                 )
             }
 
-            if (data.humidity > 80 || data.humidity < 30) {
-                binding.tvHumidStatusDetail.text = "Cảnh báo"
+            if (data.humidity > currentThresholds.highHumid || data.humidity < currentThresholds.lowHumid) {
+                binding.tvHumidStatusDetail.text = "Canh bao"
                 binding.tvHumidStatusDetail.setTextColor(
                     ContextCompat.getColor(requireContext(), R.color.warning_red)
                 )
             } else {
-                binding.tvHumidStatusDetail.text = "Bình thường"
+                binding.tvHumidStatusDetail.text = "Binh thuong"
                 binding.tvHumidStatusDetail.setTextColor(
                     ContextCompat.getColor(requireContext(), R.color.primary)
                 )

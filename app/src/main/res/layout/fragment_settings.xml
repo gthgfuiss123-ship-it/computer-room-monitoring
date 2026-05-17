@@ -179,7 +179,24 @@
                     android:layout_height="wrap_content"
                     android:text="Min: 0% | Max: 50%"
                     android:textSize="11sp"
-                    android:textColor="@color/text_secondary" />
+                    android:textColor="@color/text_secondary"
+                    android:layout_marginBottom="24dp" />
+
+                <!-- Save Thresholds Button -->
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnSaveThresholds"
+                    android:layout_width="match_parent"
+                    android:layout_height="52dp"
+                    android:text="Lưu ngưỡng cảnh báo"
+                    android:textSize="15sp"
+                    android:textStyle="bold"
+                    android:textAllCaps="false"
+                    app:cornerRadius="12dp"
+                    android:backgroundTint="@color/primary"
+                    android:textColor="@color/white"
+                    app:icon="@drawable/ic_save"
+                    app:iconTint="@color/white"
+                    app:iconGravity="textStart" />
 
             </LinearLayout>
 
