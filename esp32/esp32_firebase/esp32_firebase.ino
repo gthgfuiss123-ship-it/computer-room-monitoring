@@ -1,15 +1,11 @@
 /*
  * ESP32 - Firebase Realtime Database
- * Hệ thống giám sát phòng máy tính
+ * Smart Farm Monitor - Giám sát nhiệt độ & độ ẩm nông nghiệp
  * 
  * Phần cứng:
  *   - ESP32 DevKit
- *   - DHT22 (hoặc DHT11) cảm biến nhiệt độ & độ ẩm
- *   - PIR cảm biến chuyển động
+ *   - DHT11 cảm biến nhiệt độ & độ ẩm
  *   - LED xanh (trạng thái hoạt động)
- *   - LED đỏ (cảnh báo)
- *   - Buzzer
- *   - Relay module (điều khiển quạt, đèn)
  *   - LCD I2C 16x2
  * 
  * Thư viện cần cài:
@@ -36,12 +32,12 @@
 #define DST_OFFSET  0
 
 // ==================== CẤU HÌNH WIFI ====================
-#define WIFI_SSID     "Khang Nhi House2.4G"       // <-- Thay bằng tên WiFi của bạn
-#define WIFI_PASSWORD "0905396961"    // <-- Thay bằng mật khẩu WiFi
+#define WIFI_SSID     "Hoàng Khang"       // <-- Thay bằng tên WiFi của bạn
+#define WIFI_PASSWORD "passwifi"    // <-- Thay bằng mật khẩu WiFi
 
 // ==================== CẤU HÌNH FIREBASE ====================
 #define FIREBASE_HOST "gen-lang-client-0691122932-default-rtdb.firebaseio.com"  // <-- Thay bằng URL Firebase
-#define FIREBASE_AUTH "FqTKRoCl1hTLJ3l5opgjZlI0vgWSVLsdVwDxHQ8U" // <-- Thay bằng Database Secret
+#define FIREBASE_AUTH "FqTKRoCl1hTLJ3l5opgjZlI0vgWSVLsdVwDxHQ8U"   // <-- Thay bằng Database Secret
 
 // ==================== LCD I2C ====================
 #define SDA_PIN 21
@@ -53,19 +49,8 @@ LiquidCrystal_I2C lcd(0x27, 16, 2);
 #define DHTTYPE DHT11
 DHT dht(DHTPIN, DHTTYPE);
 
-// ==================== PIR ====================
-#define PIR_PIN 27
-
 // ==================== LED ====================
 #define LED_GREEN 18
-#define LED_RED   19
-
-// ==================== BUZZER ====================
-#define BUZZER_PIN 26
-
-// ==================== RELAY (điều khiển thiết bị) ====================
-#define RELAY_FAN   25
-#define RELAY_LIGHT 33
 
 // ==================== FIREBASE ====================
 FirebaseData firebaseData;
@@ -89,30 +74,13 @@ void setup() {
   // ===== DHT =====
   dht.begin();
 
-  // ===== PIR =====
-  pinMode(PIR_PIN, INPUT_PULLDOWN);
-
   // ===== LED =====
   pinMode(LED_GREEN, OUTPUT);
-  pinMode(LED_RED, OUTPUT);
-
-  // ===== BUZZER =====
-  pinMode(BUZZER_PIN, OUTPUT);
-
-  // ===== RELAY =====
-  pinMode(RELAY_FAN, OUTPUT);
-  pinMode(RELAY_LIGHT, OUTPUT);
-  digitalWrite(RELAY_FAN, LOW);
-  digitalWrite(RELAY_LIGHT, LOW);
-
-  // ===== Trạng thái ban đầu =====
   digitalWrite(LED_GREEN, HIGH);
-  digitalWrite(LED_RED, LOW);
-  digitalWrite(BUZZER_PIN, LOW);
 
   // ===== LCD khởi động =====
   lcd.setCursor(0, 0);
-  lcd.print("ROOM MONITOR");
+  lcd.print("FARM MONITOR");
   lcd.setCursor(0, 1);
   lcd.print("Connecting...");
 
@@ -151,11 +119,6 @@ void setup() {
   lcd.print("Firebase: OK");
   delay(2000);
   lcd.clear();
-
-  // ===== Khởi tạo trạng thái thiết bị trên Firebase =====
-  Firebase.setBool(firebaseData, "/devices/fan", false);
-  Firebase.setBool(firebaseData, "/devices/light", false);
-  Firebase.setBool(firebaseData, "/devices/buzzer", false);
 }
 
 void loop() {
@@ -164,7 +127,6 @@ void loop() {
   // ===== Đọc cảm biến =====
   float humidity = dht.readHumidity();
   float temperature = dht.readTemperature();
-  int motion = digitalRead(PIR_PIN);
 
   // ===== Kiểm tra lỗi DHT =====
   if (isnan(humidity) || isnan(temperature)) {
@@ -189,16 +151,12 @@ void loop() {
   lcd.print(humidity, 0);
   lcd.print("% ");
 
-  // ===== Xử lý chuyển động =====
-  if (motion == HIGH) {
-    digitalWrite(LED_RED, HIGH);
-    lcd.setCursor(0, 1);
-    lcd.print("MOTION ALERT! ");
-    Serial.println("Phat hien chuyen dong!");
+  // ===== Hiển thị trạng thái =====
+  lcd.setCursor(0, 1);
+  if (temperature > 40 || temperature < 10 || humidity > 80 || humidity < 30) {
+    lcd.print("CANH BAO!     ");
   } else {
-    digitalWrite(LED_RED, LOW);
-    lcd.setCursor(0, 1);
-    lcd.print("SAFE          ");
+    lcd.print("BINH THUONG   ");
   }
 
   // ===== Gửi dữ liệu lên Firebase (mỗi 2 giây) =====
@@ -207,7 +165,6 @@ void loop() {
 
     Firebase.setFloat(firebaseData, "/sensor/temperature", temperature);
     Firebase.setFloat(firebaseData, "/sensor/humidity", humidity);
-    Firebase.setBool(firebaseData, "/sensor/motion", motion == HIGH);
     time_t now;
     time(&now);
     Firebase.setInt(firebaseData, "/sensor/timestamp", (int)now);
@@ -215,46 +172,22 @@ void loop() {
     Serial.print("Sent -> T: ");
     Serial.print(temperature);
     Serial.print(" H: ");
-    Serial.print(humidity);
-    Serial.print(" Motion: ");
-    Serial.println(motion == HIGH ? "YES" : "NO");
+    Serial.println(humidity);
   }
 
   // ===== Lưu lịch sử (mỗi 60 giây) =====
   if (currentTime - lastHistoryTime >= HISTORY_INTERVAL) {
     lastHistoryTime = currentTime;
 
-    String historyPath = "/history/" + String(millis());
-    Firebase.setFloat(firebaseData, historyPath + "/temperature", temperature);
-    Firebase.setFloat(firebaseData, historyPath + "/humidity", humidity);
-    Firebase.setBool(firebaseData, historyPath + "/motion", motion == HIGH);
     time_t nowHist;
     time(&nowHist);
+    String historyPath = "/history/" + String((unsigned long)nowHist);
+    Firebase.setFloat(firebaseData, historyPath + "/temperature", temperature);
+    Firebase.setFloat(firebaseData, historyPath + "/humidity", humidity);
     Firebase.setInt(firebaseData, historyPath + "/timestamp", (int)nowHist);
 
     Serial.println("Da luu lich su");
   }
-
-  // ===== Đọc lệnh điều khiển từ Firebase =====
-  // Quạt
-  if (Firebase.getBool(firebaseData, "/devices/fan")) {
-    bool fanOn = firebaseData.boolData();
-    digitalWrite(RELAY_FAN, fanOn ? HIGH : LOW);
-  }
-
-  // Đèn
-  if (Firebase.getBool(firebaseData, "/devices/light")) {
-    bool lightOn = firebaseData.boolData();
-    digitalWrite(RELAY_LIGHT, lightOn ? HIGH : LOW);
-  }
-
-  // Buzzer (Hú còi từ xa HOẶC tự động khi nhiệt > 40 hoặc có chuyển động)
-  bool manualBuzzer = false;
-  if (Firebase.getBool(firebaseData, "/devices/buzzer")) {
-    manualBuzzer = firebaseData.boolData();
-  }
-  bool autoAlarm = (motion == HIGH) || (temperature >= 40.0);
-  digitalWrite(BUZZER_PIN, (manualBuzzer || autoAlarm) ? HIGH : LOW);
 
   delay(500);
 }

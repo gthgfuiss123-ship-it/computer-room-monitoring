@@ -1,5 +1,6 @@
 package com.computerroom.monitoring.ui.history
 
+import android.app.DatePickerDialog
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -9,6 +10,9 @@ import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.computerroom.monitoring.databinding.FragmentHistoryBinding
 import com.computerroom.monitoring.viewmodel.HistoryViewModel
+import java.text.SimpleDateFormat
+import java.util.Calendar
+import java.util.Locale
 
 class HistoryFragment : Fragment() {
 
@@ -28,34 +32,43 @@ class HistoryFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         setupRecyclerView()
+        setupDatePicker()
         setupObservers()
-        setupSwipeRefresh()
     }
 
     private fun setupRecyclerView() {
         adapter = HistoryAdapter()
-        binding.recyclerHistory.layoutManager = LinearLayoutManager(requireContext())
-        binding.recyclerHistory.adapter = adapter
+        binding.rvHistory.layoutManager = LinearLayoutManager(requireContext())
+        binding.rvHistory.adapter = adapter
+    }
+
+    private fun setupDatePicker() {
+        binding.tvDatePicker.setOnClickListener {
+            val calendar = Calendar.getInstance()
+            DatePickerDialog(
+                requireContext(),
+                { _, year, month, day ->
+                    val sdf = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
+                    calendar.set(year, month, day)
+                    binding.tvDatePicker.text = sdf.format(calendar.time)
+                },
+                calendar.get(Calendar.YEAR),
+                calendar.get(Calendar.MONTH),
+                calendar.get(Calendar.DAY_OF_MONTH)
+            ).show()
+        }
     }
 
     private fun setupObservers() {
         viewModel.historyList.observe(viewLifecycleOwner) { records ->
-            adapter.submitList(records)
-            binding.swipeRefresh.isRefreshing = false
-
-            if (records.isEmpty()) {
-                binding.tvEmpty.visibility = View.VISIBLE
-                binding.recyclerHistory.visibility = View.GONE
+            if (records.isNullOrEmpty()) {
+                binding.rvHistory.visibility = View.GONE
+                binding.layoutEmpty.visibility = View.VISIBLE
             } else {
-                binding.tvEmpty.visibility = View.GONE
-                binding.recyclerHistory.visibility = View.VISIBLE
+                binding.rvHistory.visibility = View.VISIBLE
+                binding.layoutEmpty.visibility = View.GONE
+                adapter.submitList(records)
             }
-        }
-    }
-
-    private fun setupSwipeRefresh() {
-        binding.swipeRefresh.setOnRefreshListener {
-            viewModel.refresh()
         }
     }
 
