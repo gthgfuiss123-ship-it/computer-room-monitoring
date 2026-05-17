@@ -2,7 +2,7 @@
 <resources>
     <string name="app_name">Smart Farm Monitor</string>
     <string name="title_home">Trang chủ</string>
-    <string name="title_sensor">Thống kê</string>
+    <string name="title_sensor">Cảm biến</string>
     <string name="title_settings">Cài đặt</string>
     <string name="title_history">Lịch sử</string>
     <string name="logout">Đăng xuất</string>

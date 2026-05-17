@@ -8,7 +8,7 @@
 
     <item
         android:id="@+id/navigation_sensor"
-        android:icon="@drawable/ic_chart"
+        android:icon="@drawable/ic_leaf"
         android:title="@string/title_sensor" />
 
     <item

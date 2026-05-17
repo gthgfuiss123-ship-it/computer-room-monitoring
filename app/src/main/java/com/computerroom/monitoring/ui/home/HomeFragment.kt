@@ -4,8 +4,10 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import com.computerroom.monitoring.R
 import com.computerroom.monitoring.databinding.FragmentHomeBinding
 import com.computerroom.monitoring.viewmodel.HomeViewModel
 import java.text.SimpleDateFormat
@@ -33,12 +35,45 @@ class HomeFragment : Fragment() {
 
     private fun setupObservers() {
         viewModel.sensorData.observe(viewLifecycleOwner) { data ->
-            binding.tvTemperatureValue.text = String.format("%.1f°C", data.temperature)
+            binding.tvTemperatureValue.text = String.format("%.1f°", data.temperature)
             binding.tvHumidityValue.text = String.format("%.0f%%", data.humidity)
+
+            binding.progressTempGauge.progress = data.temperature.toInt().coerceIn(0, 50)
+            binding.progressHumidGauge.progress = data.humidity.toInt().coerceIn(0, 100)
+
+            when {
+                data.temperature > 40 || data.temperature < 10 -> {
+                    binding.tvTempStatus.text = "Cảnh báo"
+                    binding.tvTempStatus.setTextColor(
+                        ContextCompat.getColor(requireContext(), R.color.warning_red)
+                    )
+                }
+                else -> {
+                    binding.tvTempStatus.text = "Bình thường"
+                    binding.tvTempStatus.setTextColor(
+                        ContextCompat.getColor(requireContext(), R.color.primary)
+                    )
+                }
+            }
+
+            when {
+                data.humidity > 80 || data.humidity < 30 -> {
+                    binding.tvHumidStatus.text = "Cảnh báo"
+                    binding.tvHumidStatus.setTextColor(
+                        ContextCompat.getColor(requireContext(), R.color.warning_red)
+                    )
+                }
+                else -> {
+                    binding.tvHumidStatus.text = "Bình thường"
+                    binding.tvHumidStatus.setTextColor(
+                        ContextCompat.getColor(requireContext(), R.color.primary)
+                    )
+                }
+            }
 
             if (data.timestamp > 0) {
                 val sdf = SimpleDateFormat("HH:mm:ss dd/MM/yyyy", Locale.getDefault())
-                binding.tvLastUpdate.text = "Cập nhật: ${sdf.format(Date(data.timestamp * 1000L))}"
+                binding.tvLastUpdate.text = "Cập nhật lần cuối: ${sdf.format(Date(data.timestamp * 1000L))}"
             }
         }
 

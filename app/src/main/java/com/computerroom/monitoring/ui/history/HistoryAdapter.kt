@@ -16,9 +16,7 @@ import java.util.Locale
 class HistoryAdapter : ListAdapter<HistoryRecord, HistoryAdapter.ViewHolder>(DiffCallback()) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        val binding = ItemHistoryBinding.inflate(
-            LayoutInflater.from(parent.context), parent, false
-        )
+        val binding = ItemHistoryBinding.inflate(LayoutInflater.from(parent.context), parent, false)
         return ViewHolder(binding)
     }
 
@@ -26,27 +24,29 @@ class HistoryAdapter : ListAdapter<HistoryRecord, HistoryAdapter.ViewHolder>(Dif
         holder.bind(getItem(position))
     }
 
-    class ViewHolder(
-        private val binding: ItemHistoryBinding
-    ) : RecyclerView.ViewHolder(binding.root) {
+    class ViewHolder(private val binding: ItemHistoryBinding) : RecyclerView.ViewHolder(binding.root) {
 
         fun bind(record: HistoryRecord) {
-            binding.tvHistoryTemp.text = String.format("%.1f°C", record.temperature)
-            binding.tvHistoryHumid.text = String.format("%.0f%%", record.humidity)
+            val context = binding.root.context
+            val sdf = SimpleDateFormat("HH:mm:ss", Locale.getDefault())
+            binding.tvTime.text = sdf.format(Date(record.timestamp * 1000L))
+
+            binding.tvTemperature.text = String.format("%.1f°C", record.temperature)
+            binding.tvHumidity.text = String.format("%.0f%%", record.humidity)
 
             val isWarning = record.temperature > 40 || record.temperature < 10 ||
                 record.humidity > 80 || record.humidity < 30
-            binding.tvHistoryStatus.text = if (isWarning) "Cảnh báo" else "Bình thường"
-            binding.tvHistoryStatus.setTextColor(
-                ContextCompat.getColor(
-                    binding.root.context,
-                    if (isWarning) R.color.warning_red else R.color.safe_green
-                )
-            )
 
-            if (record.timestamp > 0) {
-                val sdf = SimpleDateFormat("HH:mm:ss\ndd/MM/yyyy", Locale.getDefault())
-                binding.tvHistoryTime.text = sdf.format(Date(record.timestamp * 1000L))
+            if (isWarning) {
+                binding.tvStatus.text = "Cảnh báo"
+                binding.tvStatus.setTextColor(ContextCompat.getColor(context, R.color.warning_red))
+                binding.tvStatus.setBackgroundResource(R.drawable.bg_status_badge_warning)
+                binding.viewStatusDot.setBackgroundResource(R.drawable.bg_status_dot_warning)
+            } else {
+                binding.tvStatus.text = "Bình thường"
+                binding.tvStatus.setTextColor(ContextCompat.getColor(context, R.color.primary))
+                binding.tvStatus.setBackgroundResource(R.drawable.bg_status_badge_normal)
+                binding.viewStatusDot.setBackgroundResource(R.drawable.bg_status_dot)
             }
         }
     }
