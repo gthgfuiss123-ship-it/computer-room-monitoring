@@ -34,6 +34,7 @@ class FirebaseRepository {
     private var historyListener: ValueEventListener? = null
     private var historyQuery: Query? = null
     private var thresholdListener: ValueEventListener? = null
+    private var thresholdRef: com.google.firebase.database.DatabaseReference? = null
 
     fun startListeningSensorData() {
         if (sensorListener != null) return
@@ -95,11 +96,13 @@ class FirebaseRepository {
 
     fun loadThresholds() {
         val uid = FirebaseAuth.getInstance().currentUser?.uid ?: return
-        val thresholdRef = database.getReference("users").child(uid).child("thresholds")
+        val newThresholdRef = database.getReference("users").child(uid).child("thresholds")
 
-        if (thresholdListener != null) {
-            thresholdRef.removeEventListener(thresholdListener!!)
+        thresholdListener?.let { listener ->
+            thresholdRef?.removeEventListener(listener)
         }
+
+        thresholdRef = newThresholdRef
 
         thresholdListener = object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
@@ -111,7 +114,15 @@ class FirebaseRepository {
                 _error.postValue("Threshold error: ${error.message}")
             }
         }
-        thresholdRef.addValueEventListener(thresholdListener!!)
+        newThresholdRef.addValueEventListener(thresholdListener!!)
+    }
+
+    fun stopListeningThresholds() {
+        thresholdListener?.let { listener ->
+            thresholdRef?.removeEventListener(listener)
+        }
+        thresholdListener = null
+        thresholdRef = null
     }
 
     companion object {

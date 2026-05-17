@@ -69,4 +69,9 @@ class HomeViewModel : ViewModel() {
     fun clearCriticalAlert() {
         _criticalAlert.value = null
     }
+
+    override fun onCleared() {
+        super.onCleared()
+        repository.stopListeningThresholds()
+    }
 }

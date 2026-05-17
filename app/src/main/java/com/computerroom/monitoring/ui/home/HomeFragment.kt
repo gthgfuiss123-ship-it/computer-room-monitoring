@@ -2,6 +2,7 @@ package com.computerroom.monitoring.ui.home
 
 import android.app.AlertDialog
 import android.graphics.Color
+import android.media.Ringtone
 import android.media.RingtoneManager
 import android.os.Bundle
 import android.os.VibrationEffect
@@ -27,6 +28,7 @@ class HomeFragment : Fragment() {
     private val binding get() = _binding!!
     private val viewModel: HomeViewModel by activityViewModels()
     private var alertDialog: AlertDialog? = null
+    private var currentRingtone: Ringtone? = null
     private var currentThresholds = ThresholdSettings()
 
     override fun onCreateView(
@@ -134,6 +136,7 @@ class HomeFragment : Fragment() {
             .setCustomTitle(titleView)
             .setMessage("$message\n\nVui long kiem tra he thong ngay lap tuc!")
             .setPositiveButton("DA HIEU") { dialog, _ ->
+                currentRingtone?.stop()
                 dialog.dismiss()
             }
             .setCancelable(false)
@@ -154,13 +157,16 @@ class HomeFragment : Fragment() {
         } catch (_: Exception) { }
 
         try {
+            currentRingtone?.stop()
             val notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM)
-            val ringtone = RingtoneManager.getRingtone(requireContext(), notification)
-            ringtone?.play()
+            currentRingtone = RingtoneManager.getRingtone(requireContext(), notification)
+            currentRingtone?.play()
         } catch (_: Exception) { }
     }
 
     override fun onDestroyView() {
+        currentRingtone?.stop()
+        currentRingtone = null
         alertDialog?.dismiss()
         alertDialog = null
         super.onDestroyView()
