@@ -4,6 +4,8 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.computerroom.monitoring.data.model.HistoryRecord
 import com.computerroom.monitoring.data.model.SensorData
+import com.computerroom.monitoring.data.model.ThresholdSettings
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
@@ -25,9 +27,14 @@ class FirebaseRepository {
     private val _error = MutableLiveData<String>()
     val error: LiveData<String> = _error
 
+    private val _thresholdSettings = MutableLiveData<ThresholdSettings>()
+    val thresholdSettings: LiveData<ThresholdSettings> = _thresholdSettings
+
     private var sensorListener: ValueEventListener? = null
     private var historyListener: ValueEventListener? = null
     private var historyQuery: Query? = null
+    private var thresholdListener: ValueEventListener? = null
+    private var thresholdRef: com.google.firebase.database.DatabaseReference? = null
 
     fun startListeningSensorData() {
         if (sensorListener != null) return
@@ -73,6 +80,49 @@ class FirebaseRepository {
             }
         }
         query.addValueEventListener(historyListener!!)
+    }
+
+    fun saveThresholds(settings: ThresholdSettings, onComplete: (Boolean, String?) -> Unit) {
+        val uid = FirebaseAuth.getInstance().currentUser?.uid
+        if (uid == null) {
+            onComplete(false, "Chưa đăng nhập")
+            return
+        }
+        val thresholdRef = database.getReference("users").child(uid).child("thresholds")
+        thresholdRef.setValue(settings)
+            .addOnSuccessListener { onComplete(true, null) }
+            .addOnFailureListener { e -> onComplete(false, e.message) }
+    }
+
+    fun loadThresholds() {
+        val uid = FirebaseAuth.getInstance().currentUser?.uid ?: return
+        val newThresholdRef = database.getReference("users").child(uid).child("thresholds")
+
+        thresholdListener?.let { listener ->
+            thresholdRef?.removeEventListener(listener)
+        }
+
+        thresholdRef = newThresholdRef
+
+        thresholdListener = object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                val settings = snapshot.getValue(ThresholdSettings::class.java)
+                _thresholdSettings.postValue(settings ?: ThresholdSettings())
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                _error.postValue("Threshold error: ${error.message}")
+            }
+        }
+        newThresholdRef.addValueEventListener(thresholdListener!!)
+    }
+
+    fun stopListeningThresholds() {
+        thresholdListener?.let { listener ->
+            thresholdRef?.removeEventListener(listener)
+        }
+        thresholdListener = null
+        thresholdRef = null
     }
 
     companion object {
