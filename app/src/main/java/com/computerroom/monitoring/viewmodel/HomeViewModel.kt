@@ -23,6 +23,9 @@ class HomeViewModel : ViewModel() {
     private val _criticalAlert = MutableLiveData<String?>()
     val criticalAlert: LiveData<String?> = _criticalAlert
 
+    private val _sensorHistory = MutableLiveData<List<SensorData>>(emptyList())
+    val sensorHistory: LiveData<List<SensorData>> = _sensorHistory
+
     private val _tempMin = MutableLiveData<Float>()
     val tempMin: LiveData<Float> = _tempMin
 
@@ -39,6 +42,7 @@ class HomeViewModel : ViewModel() {
 
     private val minMaxObserver = Observer<SensorData> { data ->
         trackMinMax(data)
+        addToHistory(data)
     }
 
     init {
@@ -73,6 +77,17 @@ class HomeViewModel : ViewModel() {
         val currentHumidMax = _humidMax.value
         if (currentHumidMax == null || data.humidity > currentHumidMax) {
             _humidMax.value = data.humidity
+        }
+    }
+
+    private fun addToHistory(data: SensorData) {
+        val current = _sensorHistory.value.orEmpty().toMutableList()
+        val entry = if (data.timestamp > 0L) data else SensorData(data.temperature, data.humidity, System.currentTimeMillis())
+        current.add(entry)
+        if (current.size > 50) {
+            _sensorHistory.value = current.takeLast(50)
+        } else {
+            _sensorHistory.value = current
         }
     }
 

@@ -54,12 +54,27 @@ class FirebaseRepository {
         sensorRef.addValueEventListener(sensorListener!!)
     }
 
-    fun loadHistory() {
+    fun loadHistory(filterDateMillis: Long? = null) {
         historyListener?.let { listener ->
             historyQuery?.removeEventListener(listener)
         }
 
-        val query = historyRef.orderByChild("timestamp").limitToLast(50)
+        val query = if (filterDateMillis != null) {
+            val calendar = java.util.Calendar.getInstance()
+            calendar.timeInMillis = filterDateMillis
+            calendar.set(java.util.Calendar.HOUR_OF_DAY, 0)
+            calendar.set(java.util.Calendar.MINUTE, 0)
+            calendar.set(java.util.Calendar.SECOND, 0)
+            calendar.set(java.util.Calendar.MILLISECOND, 0)
+            val startOfDay = calendar.timeInMillis
+            calendar.add(java.util.Calendar.DAY_OF_MONTH, 1)
+            val endOfDay = calendar.timeInMillis
+            historyRef.orderByChild("timestamp")
+                .startAt(startOfDay.toDouble())
+                .endAt(endOfDay.toDouble() - 1)
+        } else {
+            historyRef.orderByChild("timestamp").limitToLast(50)
+        }
         historyQuery = query
 
         historyListener = object : ValueEventListener {

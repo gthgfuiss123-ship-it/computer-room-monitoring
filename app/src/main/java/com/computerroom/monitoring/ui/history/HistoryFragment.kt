@@ -54,6 +54,7 @@ class HistoryFragment : Fragment() {
                     val sdf = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
                     calendar.set(year, month, day)
                     binding.tvDatePicker.text = sdf.format(calendar.time)
+                    viewModel.loadHistoryByDate(calendar.timeInMillis)
                 },
                 calendar.get(Calendar.YEAR),
                 calendar.get(Calendar.MONTH),
