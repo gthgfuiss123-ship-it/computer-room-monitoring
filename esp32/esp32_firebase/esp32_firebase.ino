@@ -32,12 +32,12 @@
 #define DST_OFFSET  0
 
 // ==================== CẤU HÌNH WIFI ====================
-#define WIFI_SSID     "YOUR_WIFI_SSID"       // <-- Thay bằng tên WiFi của bạn
-#define WIFI_PASSWORD "YOUR_WIFI_PASSWORD"    // <-- Thay bằng mật khẩu WiFi
+#define WIFI_SSID     "Hoàng Khang"       // <-- Thay bằng tên WiFi của bạn
+#define WIFI_PASSWORD "passwifi"    // <-- Thay bằng mật khẩu WiFi
 
 // ==================== CẤU HÌNH FIREBASE ====================
-#define FIREBASE_HOST "YOUR_FIREBASE_HOST"  // <-- Thay bằng URL Firebase
-#define FIREBASE_AUTH "YOUR_FIREBASE_AUTH"   // <-- Thay bằng Database Secret
+#define FIREBASE_HOST "gen-lang-client-0691122932-default-rtdb.firebaseio.com"  // <-- Thay bằng URL Firebase
+#define FIREBASE_AUTH "FqTKRoCl1hTLJ3l5opgjZlI0vgWSVLsdVwDxHQ8U"   // <-- Thay bằng Database Secret
 
 // ==================== LCD I2C ====================
 #define SDA_PIN 21

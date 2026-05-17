@@ -60,7 +60,7 @@ class HistoryFragment : Fragment() {
     }
 
     private fun setupObservers() {
-        viewModel.historyData.observe(viewLifecycleOwner) { records ->
+        viewModel.historyList.observe(viewLifecycleOwner) { records ->
             if (records.isNullOrEmpty()) {
                 binding.rvHistory.visibility = View.GONE
                 binding.layoutEmpty.visibility = View.VISIBLE
