@@ -8,6 +8,7 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.computerroom.monitoring.R
 import com.computerroom.monitoring.data.model.HistoryRecord
+import com.computerroom.monitoring.data.model.ThresholdSettings
 import com.computerroom.monitoring.databinding.ItemHistoryBinding
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -15,18 +16,24 @@ import java.util.Locale
 
 class HistoryAdapter : ListAdapter<HistoryRecord, HistoryAdapter.ViewHolder>(DiffCallback()) {
 
+    var thresholds: ThresholdSettings = ThresholdSettings()
+        set(value) {
+            field = value
+            notifyDataSetChanged()
+        }
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val binding = ItemHistoryBinding.inflate(LayoutInflater.from(parent.context), parent, false)
         return ViewHolder(binding)
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        holder.bind(getItem(position))
+        holder.bind(getItem(position), thresholds)
     }
 
     class ViewHolder(private val binding: ItemHistoryBinding) : RecyclerView.ViewHolder(binding.root) {
 
-        fun bind(record: HistoryRecord) {
+        fun bind(record: HistoryRecord, thresholds: ThresholdSettings) {
             val context = binding.root.context
             val sdf = SimpleDateFormat("HH:mm:ss", Locale.getDefault())
             binding.tvTime.text = sdf.format(Date(record.timestamp * 1000L))
@@ -34,8 +41,8 @@ class HistoryAdapter : ListAdapter<HistoryRecord, HistoryAdapter.ViewHolder>(Dif
             binding.tvTemperature.text = String.format("%.1f°C", record.temperature)
             binding.tvHumidity.text = String.format("%.0f%%", record.humidity)
 
-            val isWarning = record.temperature > 40 || record.temperature < 10 ||
-                record.humidity > 80 || record.humidity < 30
+            val isWarning = record.temperature > thresholds.highTemp || record.temperature < thresholds.lowTemp ||
+                record.humidity > thresholds.highHumid || record.humidity < thresholds.lowHumid
 
             if (isWarning) {
                 binding.tvStatus.text = "Cảnh báo"

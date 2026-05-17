@@ -37,17 +37,25 @@ class SensorFragment : Fragment() {
             currentThresholds = settings
         }
 
+        viewModel.tempMin.observe(viewLifecycleOwner) { min ->
+            binding.tvTempMin.text = String.format("%.0f°", min)
+        }
+        viewModel.tempMax.observe(viewLifecycleOwner) { max ->
+            binding.tvTempMax.text = String.format("%.0f°", max)
+        }
+        viewModel.humidMin.observe(viewLifecycleOwner) { min ->
+            binding.tvHumidMin.text = String.format("%.0f%%", min)
+        }
+        viewModel.humidMax.observe(viewLifecycleOwner) { max ->
+            binding.tvHumidMax.text = String.format("%.0f%%", max)
+        }
+
         viewModel.sensorData.observe(viewLifecycleOwner) { data ->
             binding.tvTempCurrent.text = String.format("%.1f°", data.temperature)
             binding.tvHumidCurrent.text = String.format("%.0f%%", data.humidity)
 
             binding.progressTemp.progress = data.temperature.toInt().coerceIn(0, 60)
             binding.progressHumid.progress = data.humidity.toInt().coerceIn(0, 100)
-
-            binding.tvTempMin.text = String.format("%.0f°", data.temperature - 5)
-            binding.tvTempMax.text = String.format("%.0f°", data.temperature + 3)
-            binding.tvHumidMin.text = String.format("%.0f%%", data.humidity - 10)
-            binding.tvHumidMax.text = String.format("%.0f%%", data.humidity + 5)
 
             if (data.temperature > currentThresholds.highTemp || data.temperature < currentThresholds.lowTemp) {
                 binding.tvTempStatusDetail.text = "Canh bao"

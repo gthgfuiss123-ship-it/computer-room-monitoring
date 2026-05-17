@@ -107,21 +107,22 @@ class SettingsFragment : Fragment() {
 
             repository.saveThresholds(settings) { success, errorMsg ->
                 activity?.runOnUiThread {
+                    val currentBinding = _binding ?: return@runOnUiThread
                     if (success) {
                         hasUnsavedChanges = false
                         updateSaveButtonState()
                         Snackbar.make(
-                            binding.root,
+                            currentBinding.root,
                             "Đã lưu ngưỡng cảnh báo thành công!",
                             Snackbar.LENGTH_SHORT
                         ).setBackgroundTint(requireContext().getColor(R.color.primary))
                             .setTextColor(requireContext().getColor(R.color.white))
                             .show()
                     } else {
-                        binding.btnSaveThresholds.isEnabled = true
-                        binding.btnSaveThresholds.text = "Lưu ngưỡng cảnh báo"
+                        currentBinding.btnSaveThresholds.isEnabled = true
+                        currentBinding.btnSaveThresholds.text = "Lưu ngưỡng cảnh báo"
                         Snackbar.make(
-                            binding.root,
+                            currentBinding.root,
                             "Lỗi: ${errorMsg ?: "Không thể lưu"}",
                             Snackbar.LENGTH_LONG
                         ).setBackgroundTint(requireContext().getColor(R.color.warning_red))
