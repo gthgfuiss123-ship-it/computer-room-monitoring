@@ -20,6 +20,7 @@ class HomeViewModel : ViewModel() {
         private const val TEMP_THRESHOLD_HIGH = 40.0f
         private const val TEMP_THRESHOLD_LOW = 10.0f
         private const val HUMIDITY_THRESHOLD_HIGH = 80.0f
+        private const val HUMIDITY_THRESHOLD_LOW = 30.0f
     }
 
     init {
@@ -37,8 +38,8 @@ class HomeViewModel : ViewModel() {
             if (data.humidity > HUMIDITY_THRESHOLD_HIGH) {
                 warnings.add("Độ ẩm quá cao: ${data.humidity}%")
             }
-            if (data.motion) {
-                warnings.add("Phát hiện chuyển động!")
+            if (data.humidity < HUMIDITY_THRESHOLD_LOW) {
+                warnings.add("Độ ẩm quá thấp: ${data.humidity}%")
             }
 
             _warningMessage.value = if (warnings.isEmpty()) "" else warnings.joinToString("\n")

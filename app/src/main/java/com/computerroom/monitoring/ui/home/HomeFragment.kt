@@ -35,30 +35,45 @@ class HomeFragment : Fragment() {
 
     private fun setupObservers() {
         viewModel.sensorData.observe(viewLifecycleOwner) { data ->
-            binding.tvTemperatureValue.text = String.format("%.1f°C", data.temperature)
+            binding.tvTemperatureValue.text = String.format("%.1f°", data.temperature)
             binding.tvHumidityValue.text = String.format("%.0f%%", data.humidity)
 
-            if (data.motion) {
-                binding.tvMotionStatus.text = "Phát hiện chuyển động!"
-                binding.tvMotionStatus.setTextColor(
-                    ContextCompat.getColor(requireContext(), R.color.warning_red)
-                )
-                binding.cardMotion.setCardBackgroundColor(
-                    ContextCompat.getColor(requireContext(), R.color.warning_red_light)
-                )
-            } else {
-                binding.tvMotionStatus.text = "An toàn"
-                binding.tvMotionStatus.setTextColor(
-                    ContextCompat.getColor(requireContext(), R.color.safe_green)
-                )
-                binding.cardMotion.setCardBackgroundColor(
-                    ContextCompat.getColor(requireContext(), R.color.safe_green_light)
-                )
+            binding.progressTempGauge.progress = data.temperature.toInt().coerceIn(0, 50)
+            binding.progressHumidGauge.progress = data.humidity.toInt().coerceIn(0, 100)
+
+            when {
+                data.temperature > 40 || data.temperature < 10 -> {
+                    binding.tvTempStatus.text = "Cảnh báo"
+                    binding.tvTempStatus.setTextColor(
+                        ContextCompat.getColor(requireContext(), R.color.warning_red)
+                    )
+                }
+                else -> {
+                    binding.tvTempStatus.text = "Bình thường"
+                    binding.tvTempStatus.setTextColor(
+                        ContextCompat.getColor(requireContext(), R.color.primary)
+                    )
+                }
+            }
+
+            when {
+                data.humidity > 80 || data.humidity < 30 -> {
+                    binding.tvHumidStatus.text = "Cảnh báo"
+                    binding.tvHumidStatus.setTextColor(
+                        ContextCompat.getColor(requireContext(), R.color.warning_red)
+                    )
+                }
+                else -> {
+                    binding.tvHumidStatus.text = "Bình thường"
+                    binding.tvHumidStatus.setTextColor(
+                        ContextCompat.getColor(requireContext(), R.color.primary)
+                    )
+                }
             }
 
             if (data.timestamp > 0) {
                 val sdf = SimpleDateFormat("HH:mm:ss dd/MM/yyyy", Locale.getDefault())
-                binding.tvLastUpdate.text = "Cập nhật: ${sdf.format(Date(data.timestamp * 1000L))}"
+                binding.tvLastUpdate.text = "Cập nhật lần cuối: ${sdf.format(Date(data.timestamp * 1000L))}"
             }
         }
 

@@ -15,9 +15,9 @@
         android:label="@string/title_sensor" />
 
     <fragment
-        android:id="@+id/navigation_control"
-        android:name="com.computerroom.monitoring.ui.control.ControlFragment"
-        android:label="@string/title_control" />
+        android:id="@+id/navigation_settings"
+        android:name="com.computerroom.monitoring.ui.settings.SettingsFragment"
+        android:label="@string/title_settings" />
 
     <fragment
         android:id="@+id/navigation_history"

@@ -8,13 +8,13 @@
 
     <item
         android:id="@+id/navigation_sensor"
-        android:icon="@drawable/ic_sensor"
+        android:icon="@drawable/ic_leaf"
         android:title="@string/title_sensor" />
 
     <item
-        android:id="@+id/navigation_control"
-        android:icon="@drawable/ic_control"
-        android:title="@string/title_control" />
+        android:id="@+id/navigation_settings"
+        android:icon="@drawable/ic_settings"
+        android:title="@string/title_settings" />
 
     <item
         android:id="@+id/navigation_history"

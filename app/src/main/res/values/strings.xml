@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Room Monitor</string>
+    <string name="app_name">Smart Farm Monitor</string>
     <string name="title_home">Trang chủ</string>
     <string name="title_sensor">Cảm biến</string>
-    <string name="title_control">Điều khiển</string>
+    <string name="title_settings">Cài đặt</string>
     <string name="title_history">Lịch sử</string>
     <string name="logout">Đăng xuất</string>
 </resources>

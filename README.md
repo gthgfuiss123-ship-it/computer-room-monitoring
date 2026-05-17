@@ -1,40 +1,35 @@
-# Computer Room Monitoring System
+# Smart Farm Monitor
 
-Hệ thống giám sát phòng máy tính sử dụng ứng dụng Android và IoT (ESP32 + Firebase).
+Hệ thống giám sát nhiệt độ và độ ẩm cho nông nghiệp (chăn nuôi, trồng trọt) sử dụng ứng dụng Android và IoT (ESP32 + Firebase).
 
 ## Tổng quan
 
 Hệ thống gồm 2 phần:
-- **Ứng dụng Android (Kotlin)**: Hiển thị dữ liệu cảm biến, điều khiển thiết bị, cảnh báo
-- **ESP32 + Cảm biến**: Thu thập dữ liệu nhiệt độ, độ ẩm, chuyển động và gửi lên Firebase
+- **Ứng dụng Android (Kotlin)**: Hiển thị dữ liệu nhiệt độ, độ ẩm realtime, cảnh báo, lịch sử
+- **ESP32 + Cảm biến DHT11**: Thu thập dữ liệu nhiệt độ, độ ẩm và gửi lên Firebase
 
 ### Kiến trúc hệ thống
 
 ```
-ESP32 + Sensors  →  WiFi  →  Firebase Realtime Database  →  Android App
-                                      ↕
-                              Device Control Commands
+ESP32 + DHT11  →  WiFi  →  Firebase Realtime Database  →  Android App
 ```
 
 ## Tính năng
 
 ### Ứng dụng Android
 - Đăng nhập / Đăng ký tài khoản (Firebase Authentication)
-- **Trang chủ**: Hiển thị tổng quan nhiệt độ, độ ẩm, trạng thái chuyển động
-- **Cảm biến**: Chi tiết từng cảm biến với thanh tiến trình
-- **Điều khiển**: Bật/tắt quạt, đèn, còi báo động từ xa
-- **Lịch sử**: Xem lịch sử dữ liệu cảm biến
-- **Cảnh báo**: Thông báo khi nhiệt độ quá cao/thấp hoặc phát hiện chuyển động
+- **Trang chủ**: Dashboard nhiệt độ và độ ẩm realtime
+- **Thống kê**: Chi tiết từng cảm biến với thanh tiến trình và ngưỡng cảnh báo
+- **Cài đặt**: Thông tin ngưỡng cảnh báo, tài khoản, đăng xuất
+- **Lịch sử**: Xem lịch sử dữ liệu cảm biến với trạng thái
+- **Cảnh báo**: Thông báo khi nhiệt độ > 40°C hoặc < 10°C, độ ẩm > 80% hoặc < 30%
 
 ### Phần cứng (ESP32)
-- Đọc nhiệt độ & độ ẩm (DHT22/DHT11)
-- Phát hiện chuyển động (PIR)
+- Đọc nhiệt độ & độ ẩm (DHT11)
 - Hiển thị LCD I2C 16x2
-- LED trạng thái (xanh: hoạt động, đỏ: cảnh báo)
-- Còi buzzer
-- Relay điều khiển quạt & đèn
+- LED trạng thái (xanh: hoạt động)
 - Gửi dữ liệu lên Firebase qua WiFi
-- Nhận lệnh điều khiển từ Firebase
+- Lưu lịch sử tự động mỗi 60 giây
 
 ## Cấu trúc thư mục
 
@@ -46,8 +41,8 @@ computer-room-monitoring/
 │       │   ├── ui/
 │       │   │   ├── login/        # Màn hình đăng nhập
 │       │   │   ├── home/         # Trang chủ + MainActivity
-│       │   │   ├── sensor/       # Chi tiết cảm biến
-│       │   │   ├── control/      # Điều khiển thiết bị
+│       │   │   ├── sensor/       # Thống kê cảm biến
+│       │   │   ├── settings/     # Cài đặt
 │       │   │   └── history/      # Lịch sử
 │       │   ├── data/
 │       │   │   ├── model/        # Data models
@@ -55,7 +50,8 @@ computer-room-monitoring/
 │       │   └── viewmodel/        # ViewModels (MVVM)
 │       └── res/                  # Layouts, drawables, values
 ├── esp32/                        # Code ESP32 Arduino
-│   └── esp32_firebase.ino
+│   └── esp32_firebase/
+│       └── esp32_firebase.ino
 ├── build.gradle.kts
 └── README.md
 ```
@@ -65,7 +61,7 @@ computer-room-monitoring/
 ### 1. Tạo Firebase Project
 
 1. Truy cập [Firebase Console](https://console.firebase.google.com/)
-2. Tạo project mới (ví dụ: `computer-room-monitoring`)
+2. Tạo project mới (ví dụ: `smart-farm-monitor`)
 3. Bật **Authentication** → **Email/Password**
 4. Tạo **Realtime Database** → chọn region → bắt đầu ở **test mode**
 5. Vào **Project Settings** → **Add app** → chọn **Android**
@@ -87,7 +83,7 @@ computer-room-monitoring/
    - `Firebase ESP32 Client` (by Mobizt)
    - `DHT sensor library` (by Adafruit)
    - `LiquidCrystal_I2C`
-3. Mở file `esp32/esp32_firebase.ino`
+3. Mở file `esp32/esp32_firebase/esp32_firebase.ino`
 4. Thay đổi cấu hình:
    ```cpp
    #define WIFI_SSID     "Tên_WiFi"
@@ -102,13 +98,8 @@ computer-room-monitoring/
 ```
 ESP32 Pin    →  Component
 ─────────────────────────
-GPIO 4       →  DHT22 (Data)
-GPIO 27      →  PIR (Output)
+GPIO 4       →  DHT11 (Data)
 GPIO 18      →  LED Xanh
-GPIO 19      →  LED Đỏ
-GPIO 26      →  Buzzer
-GPIO 25      →  Relay Quạt
-GPIO 33      →  Relay Đèn
 GPIO 21      →  LCD SDA
 GPIO 22      →  LCD SCL
 ```
@@ -120,24 +111,24 @@ GPIO 22      →  LCD SCL
   "sensor": {
     "temperature": 28.5,
     "humidity": 65,
-    "motion": false,
     "timestamp": 1234567890
   },
-  "devices": {
-    "fan": false,
-    "light": false,
-    "buzzer": false
-  },
   "history": {
-    "record_id": {
+    "timestamp_key": {
       "temperature": 28.5,
       "humidity": 65,
-      "motion": false,
       "timestamp": 1234567890
     }
   }
 }
 ```
+
+## Ngưỡng cảnh báo
+
+| Chỉ số | Cảnh báo thấp | Bình thường | Cảnh báo cao |
+|--------|---------------|-------------|--------------|
+| Nhiệt độ | < 10°C | 10°C - 40°C | > 40°C |
+| Độ ẩm | < 30% | 30% - 80% | > 80% |
 
 ## Kiến trúc phần mềm (MVVM)
 
@@ -162,7 +153,7 @@ Firebase Realtime Database
 | Architecture | MVVM |
 | UI | Material Design Components |
 | Vi điều khiển | ESP32 |
-| Cảm biến | DHT22, PIR |
+| Cảm biến | DHT11 |
 | Giao tiếp | WiFi |
 
 ## Thành viên nhóm

@@ -9,17 +9,30 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="16dp">
+        android:paddingHorizontal="24dp"
+        android:paddingTop="24dp"
+        android:paddingBottom="16dp">
+
+        <!-- Last Updated -->
+        <TextView
+            android:id="@+id/tvLastUpdate"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Đang chờ dữ liệu..."
+            android:textAlignment="center"
+            android:textSize="13sp"
+            android:textColor="@color/text_secondary"
+            android:layout_marginBottom="24dp" />
 
         <!-- Warning Card -->
         <com.google.android.material.card.MaterialCardView
             android:id="@+id/cardWarning"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="12dp"
+            android:layout_marginBottom="16dp"
             android:visibility="gone"
             app:cardCornerRadius="12dp"
-            app:cardElevation="4dp"
+            app:cardElevation="2dp"
             app:cardBackgroundColor="@color/warning_red_light">
 
             <LinearLayout
@@ -30,8 +43,8 @@
                 android:gravity="center_vertical">
 
                 <ImageView
-                    android:layout_width="28dp"
-                    android:layout_height="28dp"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
                     android:src="@drawable/ic_warning"
                     app:tint="@color/warning_red"
                     android:contentDescription="Warning" />
@@ -50,34 +63,45 @@
 
         </com.google.android.material.card.MaterialCardView>
 
-        <!-- Temperature Card -->
-        <com.google.android.material.card.MaterialCardView
+        <!-- Temperature Gauge -->
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="12dp"
-            app:cardCornerRadius="12dp"
-            app:cardElevation="4dp">
+            android:orientation="vertical"
+            android:gravity="center"
+            android:layout_marginBottom="32dp">
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:padding="20dp"
-                android:gravity="center_vertical">
+            <FrameLayout
+                android:layout_width="200dp"
+                android:layout_height="200dp"
+                android:layout_gravity="center">
 
-                <ImageView
-                    android:layout_width="48dp"
-                    android:layout_height="48dp"
-                    android:src="@drawable/ic_temperature"
-                    app:tint="@color/warning_orange"
-                    android:contentDescription="Temperature" />
+                <ProgressBar
+                    android:id="@+id/progressTempGauge"
+                    style="@android:style/Widget.ProgressBar.Horizontal"
+                    android:layout_width="200dp"
+                    android:layout_height="200dp"
+                    android:indeterminate="false"
+                    android:max="50"
+                    android:progress="0"
+                    android:progressDrawable="@drawable/circular_progress_temp"
+                    android:layout_gravity="center" />
 
                 <LinearLayout
-                    android:layout_width="0dp"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
                     android:orientation="vertical"
-                    android:layout_marginStart="16dp">
+                    android:gravity="center"
+                    android:layout_gravity="center">
+
+                    <TextView
+                        android:id="@+id/tvTemperatureValue"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="--°"
+                        android:textSize="40sp"
+                        android:textStyle="bold"
+                        android:textColor="@color/text_primary" />
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -86,49 +110,70 @@
                         android:textSize="14sp"
                         android:textColor="@color/text_secondary" />
 
-                    <TextView
-                        android:id="@+id/tvTemperatureValue"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="--°C"
-                        android:textSize="32sp"
-                        android:textStyle="bold"
-                        android:textColor="@color/text_primary" />
-
                 </LinearLayout>
 
-            </LinearLayout>
+            </FrameLayout>
 
-        </com.google.android.material.card.MaterialCardView>
+            <!-- Temperature Status -->
+            <TextView
+                android:id="@+id/tvTempStatus"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="--"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:textColor="@color/primary"
+                android:layout_marginTop="8dp" />
 
-        <!-- Humidity Card -->
-        <com.google.android.material.card.MaterialCardView
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Ngưỡng: &lt;10°C hoặc >40°C"
+                android:textSize="12sp"
+                android:textColor="@color/text_secondary"
+                android:layout_marginTop="4dp" />
+
+        </LinearLayout>
+
+        <!-- Humidity Gauge -->
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="12dp"
-            app:cardCornerRadius="12dp"
-            app:cardElevation="4dp">
+            android:orientation="vertical"
+            android:gravity="center"
+            android:layout_marginBottom="24dp">
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:padding="20dp"
-                android:gravity="center_vertical">
+            <FrameLayout
+                android:layout_width="200dp"
+                android:layout_height="200dp"
+                android:layout_gravity="center">
 
-                <ImageView
-                    android:layout_width="48dp"
-                    android:layout_height="48dp"
-                    android:src="@drawable/ic_humidity"
-                    app:tint="@color/info_blue"
-                    android:contentDescription="Humidity" />
+                <ProgressBar
+                    android:id="@+id/progressHumidGauge"
+                    style="@android:style/Widget.ProgressBar.Horizontal"
+                    android:layout_width="200dp"
+                    android:layout_height="200dp"
+                    android:indeterminate="false"
+                    android:max="100"
+                    android:progress="0"
+                    android:progressDrawable="@drawable/circular_progress_humid"
+                    android:layout_gravity="center" />
 
                 <LinearLayout
-                    android:layout_width="0dp"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
                     android:orientation="vertical"
-                    android:layout_marginStart="16dp">
+                    android:gravity="center"
+                    android:layout_gravity="center">
+
+                    <TextView
+                        android:id="@+id/tvHumidityValue"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="--%"
+                        android:textSize="40sp"
+                        android:textStyle="bold"
+                        android:textColor="@color/text_primary" />
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -137,82 +182,30 @@
                         android:textSize="14sp"
                         android:textColor="@color/text_secondary" />
 
-                    <TextView
-                        android:id="@+id/tvHumidityValue"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="--%"
-                        android:textSize="32sp"
-                        android:textStyle="bold"
-                        android:textColor="@color/text_primary" />
-
                 </LinearLayout>
 
-            </LinearLayout>
+            </FrameLayout>
 
-        </com.google.android.material.card.MaterialCardView>
-
-        <!-- Motion Card -->
-        <com.google.android.material.card.MaterialCardView
-            android:id="@+id/cardMotion"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="12dp"
-            app:cardCornerRadius="12dp"
-            app:cardElevation="4dp">
-
-            <LinearLayout
-                android:layout_width="match_parent"
+            <!-- Humidity Status -->
+            <TextView
+                android:id="@+id/tvHumidStatus"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:padding="20dp"
-                android:gravity="center_vertical">
+                android:text="--"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:textColor="@color/primary"
+                android:layout_marginTop="8dp" />
 
-                <ImageView
-                    android:layout_width="48dp"
-                    android:layout_height="48dp"
-                    android:src="@drawable/ic_motion"
-                    app:tint="@color/safe_green"
-                    android:contentDescription="Motion" />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Ngưỡng: &lt;30% hoặc >80%"
+                android:textSize="12sp"
+                android:textColor="@color/text_secondary"
+                android:layout_marginTop="4dp" />
 
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:orientation="vertical"
-                    android:layout_marginStart="16dp">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Chuyển động"
-                        android:textSize="14sp"
-                        android:textColor="@color/text_secondary" />
-
-                    <TextView
-                        android:id="@+id/tvMotionStatus"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="--"
-                        android:textSize="24sp"
-                        android:textStyle="bold" />
-
-                </LinearLayout>
-
-            </LinearLayout>
-
-        </com.google.android.material.card.MaterialCardView>
-
-        <!-- Last Update -->
-        <TextView
-            android:id="@+id/tvLastUpdate"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Đang chờ dữ liệu..."
-            android:textAlignment="center"
-            android:textSize="12sp"
-            android:textColor="@color/text_secondary"
-            android:layout_marginTop="8dp" />
+        </LinearLayout>
 
     </LinearLayout>
 

@@ -14,26 +14,59 @@ class LoginActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityLoginBinding
     private val viewModel: LoginViewModel by viewModels()
+    private var isRegisterMode = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         if (viewModel.isLoggedIn()) {
-            navigateToMain()
+            startActivity(Intent(this, MainActivity::class.java))
+            finish()
             return
         }
 
         binding = ActivityLoginBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        setupObservers()
         setupListeners()
+        setupObservers()
+    }
+
+    private fun setupListeners() {
+        binding.btnLogin.setOnClickListener {
+            val email = binding.etEmail.text.toString().trim()
+            val password = binding.etPassword.text.toString().trim()
+
+            if (isRegisterMode) {
+                viewModel.register(email, password)
+            } else {
+                viewModel.login(email, password)
+            }
+        }
+
+        binding.tvRegister.setOnClickListener {
+            isRegisterMode = !isRegisterMode
+            updateMode()
+        }
+    }
+
+    private fun updateMode() {
+        if (isRegisterMode) {
+            binding.tvTitle.text = "Đăng ký"
+            binding.btnLogin.text = "Đăng ký"
+            binding.tvRegister.text = "Đăng nhập"
+        } else {
+            binding.tvTitle.text = "Smart Farm Monitor"
+            binding.btnLogin.text = "Đăng nhập"
+            binding.tvRegister.text = "Đăng ký"
+        }
     }
 
     private fun setupObservers() {
         viewModel.loginResult.observe(this) { success ->
             if (success) {
-                navigateToMain()
+                startActivity(Intent(this, MainActivity::class.java))
+                finish()
             }
         }
 
@@ -41,29 +74,9 @@ class LoginActivity : AppCompatActivity() {
             Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
         }
 
-        viewModel.isLoading.observe(this) { loading ->
-            binding.progressBar.visibility = if (loading) View.VISIBLE else View.GONE
-            binding.btnLogin.isEnabled = !loading
-            binding.btnRegister.isEnabled = !loading
+        viewModel.isLoading.observe(this) { isLoading ->
+            binding.progressBar.visibility = if (isLoading) View.VISIBLE else View.GONE
+            binding.btnLogin.isEnabled = !isLoading
         }
-    }
-
-    private fun setupListeners() {
-        binding.btnLogin.setOnClickListener {
-            val email = binding.etEmail.text.toString().trim()
-            val password = binding.etPassword.text.toString().trim()
-            viewModel.login(email, password)
-        }
-
-        binding.btnRegister.setOnClickListener {
-            val email = binding.etEmail.text.toString().trim()
-            val password = binding.etPassword.text.toString().trim()
-            viewModel.register(email, password)
-        }
-    }
-
-    private fun navigateToMain() {
-        startActivity(Intent(this, MainActivity::class.java))
-        finish()
     }
 }
