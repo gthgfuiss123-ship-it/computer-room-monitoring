@@ -3,6 +3,7 @@ package com.computerroom.monitoring.viewmodel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModel
 import com.computerroom.monitoring.data.model.SensorData
 import com.computerroom.monitoring.data.model.ThresholdSettings
@@ -36,9 +37,15 @@ class HomeViewModel : ViewModel() {
 
     private var currentThresholds = ThresholdSettings()
 
+    private val minMaxObserver = Observer<SensorData> { data ->
+        trackMinMax(data)
+    }
+
     init {
         repository.startListeningSensorData()
         repository.loadThresholds()
+
+        sensorData.observeForever(minMaxObserver)
 
         _warningMessage.addSource(repository.thresholdSettings) { settings ->
             currentThresholds = settings
@@ -46,7 +53,6 @@ class HomeViewModel : ViewModel() {
         }
 
         _warningMessage.addSource(sensorData) { data ->
-            trackMinMax(data)
             checkWarnings(data)
         }
     }
@@ -104,6 +110,7 @@ class HomeViewModel : ViewModel() {
 
     override fun onCleared() {
         super.onCleared()
+        sensorData.removeObserver(minMaxObserver)
         repository.stopListeningThresholds()
     }
 }
