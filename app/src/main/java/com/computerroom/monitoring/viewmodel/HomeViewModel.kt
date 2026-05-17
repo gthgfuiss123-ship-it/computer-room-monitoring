@@ -22,6 +22,18 @@ class HomeViewModel : ViewModel() {
     private val _criticalAlert = MutableLiveData<String?>()
     val criticalAlert: LiveData<String?> = _criticalAlert
 
+    private val _tempMin = MutableLiveData<Float>()
+    val tempMin: LiveData<Float> = _tempMin
+
+    private val _tempMax = MutableLiveData<Float>()
+    val tempMax: LiveData<Float> = _tempMax
+
+    private val _humidMin = MutableLiveData<Float>()
+    val humidMin: LiveData<Float> = _humidMin
+
+    private val _humidMax = MutableLiveData<Float>()
+    val humidMax: LiveData<Float> = _humidMax
+
     private var currentThresholds = ThresholdSettings()
 
     init {
@@ -34,7 +46,27 @@ class HomeViewModel : ViewModel() {
         }
 
         _warningMessage.addSource(sensorData) { data ->
+            trackMinMax(data)
             checkWarnings(data)
+        }
+    }
+
+    private fun trackMinMax(data: SensorData) {
+        val currentTempMin = _tempMin.value
+        if (currentTempMin == null || data.temperature < currentTempMin) {
+            _tempMin.value = data.temperature
+        }
+        val currentTempMax = _tempMax.value
+        if (currentTempMax == null || data.temperature > currentTempMax) {
+            _tempMax.value = data.temperature
+        }
+        val currentHumidMin = _humidMin.value
+        if (currentHumidMin == null || data.humidity < currentHumidMin) {
+            _humidMin.value = data.humidity
+        }
+        val currentHumidMax = _humidMax.value
+        if (currentHumidMax == null || data.humidity > currentHumidMax) {
+            _humidMax.value = data.humidity
         }
     }
 
