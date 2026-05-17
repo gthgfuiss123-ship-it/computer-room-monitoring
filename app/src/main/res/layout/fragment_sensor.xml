@@ -141,41 +141,12 @@
 
                 </LinearLayout>
 
-                <!-- Temperature Progress Bar -->
-                <ProgressBar
-                    android:id="@+id/progressTemp"
-                    style="@style/Widget.AppCompat.ProgressBar.Horizontal"
+                <!-- Temperature Line Chart -->
+                <com.github.mikephil.charting.charts.LineChart
+                    android:id="@+id/chartTemp"
                     android:layout_width="match_parent"
-                    android:layout_height="8dp"
-                    android:max="60"
-                    android:progress="0"
-                    android:progressDrawable="@drawable/progress_bar_green"
-                    android:layout_marginBottom="8dp" />
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:layout_marginBottom="12dp">
-
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="0°C"
-                        android:textSize="11sp"
-                        android:textColor="@color/text_secondary" />
-
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="60°C"
-                        android:textSize="11sp"
-                        android:textColor="@color/text_secondary"
-                        android:textAlignment="viewEnd" />
-
-                </LinearLayout>
+                    android:layout_height="200dp"
+                    android:layout_marginBottom="12dp" />
 
                 <!-- Status -->
                 <TextView
@@ -319,41 +290,12 @@
 
                 </LinearLayout>
 
-                <!-- Humidity Progress Bar -->
-                <ProgressBar
-                    android:id="@+id/progressHumid"
-                    style="@style/Widget.AppCompat.ProgressBar.Horizontal"
+                <!-- Humidity Line Chart -->
+                <com.github.mikephil.charting.charts.LineChart
+                    android:id="@+id/chartHumid"
                     android:layout_width="match_parent"
-                    android:layout_height="8dp"
-                    android:max="100"
-                    android:progress="0"
-                    android:progressDrawable="@drawable/progress_bar_teal"
-                    android:layout_marginBottom="8dp" />
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:layout_marginBottom="12dp">
-
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="0%"
-                        android:textSize="11sp"
-                        android:textColor="@color/text_secondary" />
-
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="100%"
-                        android:textSize="11sp"
-                        android:textColor="@color/text_secondary"
-                        android:textAlignment="viewEnd" />
-
-                </LinearLayout>
+                    android:layout_height="200dp"
+                    android:layout_marginBottom="12dp" />
 
                 <!-- Status -->
                 <TextView
@@ -412,6 +354,7 @@
                         android:textColor="@color/text_primary" />
 
                     <TextView
+                        android:id="@+id/tvThreshHighTemp"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="40°C"
@@ -443,6 +386,7 @@
                         android:textColor="@color/text_primary" />
 
                     <TextView
+                        android:id="@+id/tvThreshLowTemp"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="10°C"
@@ -474,6 +418,7 @@
                         android:textColor="@color/text_primary" />
 
                     <TextView
+                        android:id="@+id/tvThreshHighHumid"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="80%"
@@ -505,6 +450,7 @@
                         android:textColor="@color/text_primary" />
 
                     <TextView
+                        android:id="@+id/tvThreshLowHumid"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="30%"

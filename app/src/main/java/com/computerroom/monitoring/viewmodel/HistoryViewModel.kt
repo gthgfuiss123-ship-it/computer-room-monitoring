@@ -19,4 +19,8 @@ class HistoryViewModel : ViewModel() {
     fun refresh() {
         repository.loadHistory()
     }
+
+    fun loadHistoryByDate(dateMillis: Long) {
+        repository.loadHistory(dateMillis)
+    }
 }
